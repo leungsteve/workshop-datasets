@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "id": "customer.channel_performance_regional",
+      "type": "esql",
+      "description": "Analyzes channel and region performance including CTR, CVR, impressions, and revenue. Use when users ask about which channels work best, regional performance differences, or cross-channel comparisons.",
+      "tags": ["channel", "region", "ctr", "engagement"],
+      "configuration": {
+        "query": "FROM campaign-performance\n| WHERE Date >= \"2024-06-01\" AND Date <= \"2025-06-30\"\n| EVAL ctr = TO_DOUBLE(Clicks) / Impressions * 100\n| EVAL cvr = TO_DOUBLE(Conversions) / Clicks * 100\n| STATS\n    total_impressions = SUM(Impressions),\n    avg_ctr = AVG(ctr),\n    avg_cvr = AVG(cvr),\n    total_revenue = SUM(Revenue)\n  BY Region, Channel\n| WHERE total_impressions > 100000\n| SORT total_revenue DESC",
+        "params": {}
+      }
+    }
+  ]
+}
