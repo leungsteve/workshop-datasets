@@ -1,0 +1,18 @@
+# Environment variables
+.env
+
+# Temporary files
+*.tmp
+*.log
+/tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

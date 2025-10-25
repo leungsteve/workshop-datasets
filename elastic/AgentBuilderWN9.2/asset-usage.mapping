@@ -1,0 +1,45 @@
+{
+  "settings": { 
+    "index": {
+      "mode": "lookup"
+    }
+  },
+  "mappings": {
+    "_meta": {
+      "created_by": "file-data-visualizer"
+    },
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "Action Type": {
+        "type": "keyword"
+      },
+      "Asset ID": {
+        "type": "keyword"
+      },
+      "Department": {
+        "type": "keyword"
+      },
+      "Device Type": {
+        "type": "keyword"
+      },
+      "Duration Seconds": {
+        "type": "long"
+      },
+      "Event ID": {
+        "type": "keyword"
+      },
+      "Session ID": {
+        "type": "keyword"
+      },
+      "Timestamp": {
+        "type": "date",
+        "format": "iso8601"
+      },
+      "User ID": {
+        "type": "keyword"
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "settings": {
+    "index": {
+      "mode": "lookup"
+    }
+  },
+  "mappings": {
+    "_meta": {
+      "created_by": "file-data-visualizer"
+    },
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "Asset ID": {
+        "type": "keyword"
+      },
+      "Asset Type": {
+        "type": "keyword"
+      },
+      "Associated Campaign": {
+        "type": "keyword"
+      },
+      "Deployment Date": {
+        "type": "date",
+        "format": "iso8601"
+      },
+      "Description": {
+        "type": "text"
+      },
+      "File Path": {
+        "type": "keyword"
+      },
+      "Product Name": {
+        "type": "keyword"
+      },
+      "Region": {
+        "type": "keyword"
+      },
+      "Status": {
+        "type": "keyword"
+      },
+      "Usage Guidelines": {
+        "type": "text"
+      }
+    }
+  }
+}
