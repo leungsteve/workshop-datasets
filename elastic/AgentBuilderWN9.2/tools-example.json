@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "id": "customer.campaign_roi_analysis",
+      "type": "esql",
+      "description": "Analyzes campaign ROI and performance metrics by campaign name and asset type. Shows total spend, revenue, conversions, and ROI percentage. Use when users ask about campaign profitability, which campaigns are most successful, or ROI comparisons.",
+      "tags": ["campaign", "roi", "revenue", "performance"],
+      "configuration": {
+        "query": "FROM campaign-performance | LOOKUP JOIN brand-assets ON `Asset ID` | EVAL roi = TO_DOUBLE(Revenue - Spend) / Spend * 100 | STATS total_spend = SUM(Spend), total_revenue = SUM(Revenue), avg_roi = AVG(roi), total_conversions = SUM(Conversions) BY `Campaign Name`, `Asset Type` | EVAL roi_percentage = TO_DOUBLE(total_revenue - total_spend) / total_spend * 100 | SORT roi_percentage DESC | LIMIT 10",
+        "params": {}
+      }
+    }
+  ]
+}
