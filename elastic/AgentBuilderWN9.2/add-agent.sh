@@ -24,9 +24,13 @@ else
     # Local environment - load from .env
     echo "Detected local environment"
     if [ -f ../../.env ]; then
-        export $(cat ../../.env | grep -v '^#' | xargs)
+        set -a
+        . ../../.env
+        set +a
     elif [ -f .env ]; then
-        export $(cat .env | grep -v '^#' | xargs)
+        set -a
+        . .env
+        set +a
     else
         echo "Error: .env file not found and not in sandbox environment"
         exit 1
