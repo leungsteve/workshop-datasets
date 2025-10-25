@@ -53,26 +53,68 @@ create_index() {
     echo ""
 }
 
-# Function to import NDJSON data
+# Function to import NDJSON data in chunks
 import_data() {
     local ndjson_file=$1
     local index_name=$2
+    local chunk_size=1000  # Lines per chunk (500 documents since each doc = 2 lines)
 
     echo "Importing data from: $(basename $ndjson_file)"
 
-    response=$(curl -s -X POST \
-        -H "Authorization: ApiKey $API_KEY" \
-        -H "Content-Type: application/x-ndjson" \
-        "$ES_URL/_bulk" \
-        --data-binary @"$ndjson_file")
+    # Count total lines (each document is 2 lines in bulk format)
+    local total_lines=$(wc -l < "$ndjson_file")
+    local total_docs=$((total_lines / 2))
 
-    # Simple check for errors in response
-    if echo "$response" | grep -q '"errors":false'; then
-        echo "✓ Data imported successfully"
-    else
-        echo "✗ Some errors may have occurred during import"
-        echo "$response" | head -c 500
+    echo "Total documents: $total_docs"
+
+    # Split and import in chunks
+    local line_num=0
+    local chunk_num=0
+    local success_count=0
+
+    while IFS= read -r line; do
+        echo "$line" >> /tmp/chunk_$chunk_num.ndjson
+        line_num=$((line_num + 1))
+
+        # When we reach chunk size, upload it
+        if [ $((line_num % chunk_size)) -eq 0 ]; then
+            response=$(curl -s -X POST \
+                -H "Authorization: ApiKey $API_KEY" \
+                -H "Content-Type: application/x-ndjson" \
+                "$ES_URL/_bulk" \
+                --data-binary @/tmp/chunk_$chunk_num.ndjson)
+
+            if echo "$response" | grep -q '"errors":false'; then
+                success_count=$((success_count + chunk_size / 2))
+                echo -n "."
+            else
+                echo -n "X"
+            fi
+
+            rm -f /tmp/chunk_$chunk_num.ndjson
+            chunk_num=$((chunk_num + 1))
+        fi
+    done < "$ndjson_file"
+
+    # Upload remaining lines
+    if [ -f /tmp/chunk_$chunk_num.ndjson ]; then
+        response=$(curl -s -X POST \
+            -H "Authorization: ApiKey $API_KEY" \
+            -H "Content-Type: application/x-ndjson" \
+            "$ES_URL/_bulk" \
+            --data-binary @/tmp/chunk_$chunk_num.ndjson)
+
+        if echo "$response" | grep -q '"errors":false'; then
+            echo -n "."
+        else
+            echo -n "X"
+        fi
+
+        rm -f /tmp/chunk_$chunk_num.ndjson
     fi
+
+    echo ""
+    echo "✓ Import completed in $((chunk_num + 1)) chunks"
     echo ""
 }
 
