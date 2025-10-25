@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "id": "customer.approval_workflow_efficiency",
+      "type": "esql",
+      "description": "Tracks approval workflow metrics by department including submission counts, approval rates, and rejection rates. Use when users ask about approval processes, workflow efficiency, or department-specific approval patterns.",
+      "tags": ["workflow", "approvals", "department", "efficiency"],
+      "configuration": {
+        "query": "FROM asset-usage\n| WHERE `Action Type` IN (\"Approval Submitted\", \"Approved\", \"Rejected\")\n| EVAL approval_status = CASE(\n    `Action Type` == \"Approved\", \"Approved\",\n    `Action Type` == \"Rejected\", \"Rejected\",\n    \"Pending\"\n  )\n| STATS\n    total_submissions = COUNT(*),\n    approved = COUNT(CASE(`Action Type` == \"Approved\", 1)),\n    rejected = COUNT(CASE(`Action Type` == \"Rejected\", 1))\n  BY Department\n| EVAL approval_rate = TO_DOUBLE(approved) / total_submissions * 100\n| SORT approval_rate DESC",
+        "params": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "id": "customer.asset_type_performance",
+      "type": "esql",
+      "description": "Ranks asset types by total revenue, engagement, and campaign usage. Shows which creative formats drive best results. Use when users ask about asset type effectiveness or content format recommendations.",
+      "tags": ["asset-type", "ranking", "creative", "format"],
+      "configuration": {
+        "query": "FROM campaign-performance\n| LOOKUP JOIN brand-assets ON `Asset ID`\n| EVAL revenue_per_impression = TO_DOUBLE(Revenue) / Impressions * 1000\n| STATS\n    total_campaigns = COUNT_DISTINCT(`Campaign Name`),\n    total_revenue = SUM(Revenue),\n    avg_engagement = AVG(`Engagement Rate`),\n    avg_revenue_per_1k = AVG(revenue_per_impression)\n  BY `Asset Type`, Status\n| WHERE Status == \"Active\"\n| SORT total_revenue DESC\n| LIMIT 15",
+        "params": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "id": "customer.hidden_gems_analysis",
+      "type": "esql",
+      "description": "Identifies assets with high internal team usage but low campaign deployment - \"hidden gems\" ready for broader use. Includes engagement score ranking. Use when users ask about underutilized assets, internal favorites, or optimization opportunities.",
+      "tags": ["optimization", "hidden-gems", "asset-usage", "recommendations"],
+      "configuration": {
+        "query": "FROM campaign-performance\n| STATS\n    avg_engagement = AVG(`Engagement Rate`),\n    total_conversions = SUM(Conversions),\n    total_revenue = SUM(Revenue),\n    campaign_count = COUNT_DISTINCT(`Campaign Name`)\n  BY `Asset ID`\n| LOOKUP JOIN asset-usage ON `Asset ID`\n| WHERE `Action Type` IN (\"Download\", \"View\", \"Share\")\n| STATS\n    max_avg_engagement = MAX(avg_engagement),\n    max_conversions = MAX(total_conversions),\n    max_revenue = MAX(total_revenue),\n    max_campaigns = MAX(campaign_count),\n    internal_usage = COUNT(*)\n  BY `Asset ID`\n| WHERE internal_usage > 15 AND max_campaigns < 5\n| EVAL engagement_score = max_avg_engagement * internal_usage\n| LOOKUP JOIN brand-assets ON `Asset ID`\n| KEEP `Asset ID`, `Product Name`, `Asset Type`, internal_usage, max_avg_engagement, max_campaigns, engagement_score\n| SORT engagement_score DESC\n| LIMIT 20",
+        "params": {}
+      }
+    }
+  ]
+}

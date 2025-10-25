@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "id": "customer.audience_segment_profitability",
+      "type": "esql",
+      "description": "Analyzes profitability metrics by audience segment and channel including cost per conversion, revenue per conversion, and efficiency scores. Use when users ask about audience targeting, segment performance, or optimization strategies.",
+      "tags": ["audience", "profitability", "targeting", "efficiency"],
+      "configuration": {
+        "query": "FROM campaign-performance\n| WHERE Date >= \"2024-01-01\"\n| WHERE Conversions > 0\n| EVAL cost_per_conversion = TO_DOUBLE(Spend) / Conversions\n| EVAL revenue_per_conversion = TO_DOUBLE(Revenue) / Conversions\n| EVAL profit_margin = TO_DOUBLE(Revenue - Spend) / Revenue * 100\n| STATS\n    total_conversions = SUM(Conversions),\n    avg_cpc = AVG(cost_per_conversion),\n    avg_revenue_per_conv = AVG(revenue_per_conversion),\n    avg_profit_margin = AVG(profit_margin),\n    total_profit = SUM(Revenue - Spend)\n  BY `Audience Segment`, Channel\n| WHERE total_conversions > 100\n| EVAL efficiency_score = (avg_revenue_per_conv / avg_cpc) * avg_profit_margin\n| SORT efficiency_score DESC",
+        "params": {}
+      }
+    }
+  ]
+}

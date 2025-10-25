@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "id": "customer.department_asset_usage",
+      "type": "esql",
+      "description": "Shows which asset types are most popular across departments, including total usage, unique users, and cross-departmental adoption. Use when users ask about internal usage patterns or team preferences.",
+      "tags": ["department", "usage", "internal", "adoption"],
+      "configuration": {
+        "query": "FROM asset-usage\n| STATS\n    usage_count = COUNT(*),\n    unique_users = COUNT_DISTINCT(`User ID`)\n  BY Department, `Asset ID`\n| LOOKUP JOIN brand-assets ON `Asset ID`\n| STATS\n    total_usage = SUM(usage_count),\n    total_users = SUM(unique_users),\n    departments_using = COUNT_DISTINCT(Department)\n  BY `Asset Type`\n| EVAL avg_usage_per_dept = TO_DOUBLE(total_usage) / departments_using\n| SORT total_usage DESC\n| LIMIT 15",
+        "params": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "id": "customer.monthly_performance_trends",
+      "type": "esql",
+      "description": "Shows time-series analysis of monthly spend, revenue, engagement, and conversions with month-over-month growth calculations. Use when users ask about trends, historical performance, or seasonal patterns.",
+      "tags": ["trends", "time-series", "monthly", "growth"],
+      "configuration": {
+        "query": "FROM campaign-performance\n| EVAL month = DATE_TRUNC(1 month, TO_DATETIME(Date))\n| EVAL roi = TO_DOUBLE(Revenue - Spend) / Spend * 100\n| STATS\n    monthly_spend = SUM(Spend),\n    monthly_revenue = SUM(Revenue),\n    avg_engagement = AVG(`Engagement Rate`),\n    total_conversions = SUM(Conversions),\n    avg_roi = AVG(roi)\n  BY month\n| SORT month ASC",
+        "params": {}
+      }
+    }
+  ]
+}
